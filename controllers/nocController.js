@@ -59,13 +59,30 @@ module.exports.getAllNocs = async (req, res) => {
 
 module.exports.approveNoc = async (req, res) => {
     try {
-        const { nocId } = req.body;
+        const { nocId, role } = req.body;
 
-        const updatedNoc = await Noc.findOneAndUpdate(
-            { _id: nocId },
-            { $set: { hodApproval: true } },
-            { new: true } // Return the updated document
-        );
+        let updatedNoc;
+
+        if(role === "HOD"){
+            updatedNoc = await Noc.findOneAndUpdate(
+                { _id: nocId },
+                { $set: { 
+                     hodApproval: true
+                    }
+                },
+                { new: true } // Return the updated document
+            );
+        }
+        else if(role === "CRPC"){
+            updatedNoc = await Noc.findOneAndUpdate(
+                { _id: nocId },
+                { $set: { 
+                     crpcApproval: true
+                    }
+                },
+                { new: true } // Return the updated document
+            );
+        }
 
         if (!updatedNoc) {
             return res.status(404).json({ message: 'NOC not found' });
