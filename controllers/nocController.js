@@ -33,7 +33,7 @@ module.exports.getNoc = async (req, res) => {
         if(!noc){
             return res.status(401).json({error: "Noc not found!"});
         }
-        console.log(noc);
+        // console.log(noc);
         return res.status(200).json(noc);
     } catch (error) {
         console.log(error);
@@ -78,6 +78,17 @@ module.exports.approveNoc = async (req, res) => {
                 { _id: nocId },
                 { $set: { 
                      crpcApproval: true
+                    }
+                },
+                { new: true } // Return the updated document
+            );
+        }
+        else if(role === "Dean"){
+            updatedNoc = await Noc.findOneAndUpdate(
+                { _id: nocId },
+                { $set: { 
+                     deanApproval: true,
+                     isApproved: true
                     }
                 },
                 { new: true } // Return the updated document

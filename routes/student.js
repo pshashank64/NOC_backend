@@ -10,4 +10,6 @@ router.post('/logout', studentController.logout);
 
 router.get('/getStudent', studentController.getUser);
 
+router.get('/download-noc/:nocId', studentController.downloadNoc);
+
 module.exports = router;
