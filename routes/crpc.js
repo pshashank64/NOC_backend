@@ -13,4 +13,6 @@ router.post('/noc/approve', nocController.approveNoc);
 
 router.post('/noc/reject', nocController.rejectNoc);
 
+router.get('/noc/verify', crpcController.verifyNOC);
+
 module.exports = router;

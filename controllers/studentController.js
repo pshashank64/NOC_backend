@@ -307,7 +307,29 @@ module.exports.downloadNoc = async (req, res) => {
             align: 'center',
         });
 
-        jumpLine(doc, 4);
+        jumpLine(doc, 6);
+
+        const text = `To validate the NOC, the credential id is: ${nocData._id}`;
+        doc.fontSize(10)
+        const linkWidth = doc.widthOfString(text);
+        const linkHeight = doc.currentLineHeight();
+        doc
+        .underline(
+            doc.page.width / 2 - linkWidth / 2,
+            450,
+            linkWidth,
+            linkHeight,
+        )
+        doc
+        .fontSize(10)
+        .fill('#021c27')
+        .text(
+            text,
+            doc.page.width / 2 - linkWidth / 2,
+            448,
+            linkWidth,
+            linkHeight,
+        );
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=noc.pdf`);

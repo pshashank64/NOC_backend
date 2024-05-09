@@ -1,6 +1,7 @@
 const passport = require("passport");
 const bcrypt = require('bcrypt');
 const CRPC = require('../models/crpc');
+const NOC = require("../models/noc");
 
 module.exports.login = async (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
@@ -50,5 +51,23 @@ module.exports.signup = async (req, res) => {
         return res.status(200).json({ user: newUser });
       } catch (err) {
         return res.status(500).json({ error: "Error in finding/creating the user!" });
+    }
+}
+
+
+module.exports.verifyNOC = async (req, res) => {
+    try {
+        console.log(req.query.id);
+        const noc = await NOC.findById(req.query.id);
+        // console.log(noc);
+        if(!noc){
+            return res.status(400).json({message: "No Noc found"});
+        }
+        if(!noc.isApproved){
+            return res.status(409).json({message: "The Noc is not verified!"});
+        }
+        return res.status(200).json({message: "The NOC is Verified!", noc: noc});
+    } catch (error) {
+        return res.status(500).json({ error: "Error in verifying the noc!" });
     }
 }

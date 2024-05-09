@@ -59,7 +59,7 @@ module.exports.getAllNocs = async (req, res) => {
 
 module.exports.approveNoc = async (req, res) => {
     try {
-        const { nocId, role } = req.body;
+        const { nocId, role, ctc } = req.body;
 
         let updatedNoc;
 
@@ -83,12 +83,25 @@ module.exports.approveNoc = async (req, res) => {
                 { new: true } // Return the updated document
             );
         }
-        else if(role === "Dean"){
+        else if(role === "Dean" && ctc < 7){
             updatedNoc = await Noc.findOneAndUpdate(
                 { _id: nocId },
-                { $set: { 
-                     deanApproval: true,
-                     isApproved: true
+                { $set: {
+                    deanApproval: true,
+                    isApproved: true
+                    }
+                },
+                { new: true } // Return the updated document
+            );
+        }
+        else if(role === "Dean" && ctc >= 7){
+            updatedNoc = await Noc.findOneAndUpdate(
+                { _id: nocId },
+                { $set: {
+                    hodApproval: true,
+                    crpcApproval: true,
+                    deanApproval: true,
+                    isApproved: true
                     }
                 },
                 { new: true } // Return the updated document
