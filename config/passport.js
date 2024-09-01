@@ -91,27 +91,6 @@ module.exports = (app, passport) => {
     }
 });
 
-
-  // passport.deserializeUser((id, done) => {
-  //   try {
-  //     const user = User.findById(id); // Use async/await with findById
-  //     if (!user) {
-  //       return done(null, false); // User not found
-  //     }
-  //     done(null, user); // User found
-  //   } catch (error) {
-  //     done(error); // Pass the error to Passport
-  //   }
-  // });
-  
-
-  // passport.deserializeUser((id, done) => {
-  //   User.findById(id, (error, user) => {
-  //     if (error) return done(error)
-  //     done(null, user)
-  //   })
-  // })
-
   app.use(passport.initialize())
   app.use(passport.session())
 }
