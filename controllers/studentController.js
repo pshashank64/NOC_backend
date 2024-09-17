@@ -5,6 +5,8 @@ const pdfkit = require('pdfkit');
 const Noc = require("../models/noc");
 const fs = require('fs')
 const path = require("path");
+const multer = require('multer');
+const { request } = require('http');
 
 module.exports.login = async (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
@@ -76,6 +78,37 @@ module.exports.logout = async (req, res, next) => {
     });
 };
 
+module.exports.addLeetcodeUrl = async (req, res) => {
+    try {
+        const studentId = req.body.id;
+        const url = req.body.leetcodeurl;
+        console.log(url);
+        const student = await Student.findByIdAndUpdate(studentId, {"leetcodeurl": url});
+        if(!student){
+            return res.status(401).json({error: "Student not found!"});
+        }
+        return res.status(200).json(student);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({"error": error});
+    }
+}
+
+module.exports.getLeetCodeUrl = async (req, res) => {
+    try {
+        // console.log(req.query.id);
+        const student = await Student.findById(req.params.studentId);
+        console.log(student);
+        if(!student){
+            return res.status(401).json({error: "Student not found!"});
+        }
+        const url = student.leetcodeurl;
+        return res.status(200).json(url);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({"error": error});
+    }
+}
 
 
 module.exports.getUser = async (req, res) => {
@@ -106,6 +139,60 @@ module.exports.getAllStudents = async (req, res) => {
         return res.status(500).json({"message": "Unable to fetch Students"})
     }
 }
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/'); // Folder where files will be stored
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname); // Unique filename
+    }
+});
+
+module.exports.upload = multer({ storage: storage });
+
+module.exports.uploadNoc = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        const studentId = req.body.userId;
+        const nocFileUrl = req.file.path; // Get file path
+        // Save the NOC file URL to the database for the student (associate with student ID)
+        const student = await Student.findById(studentId);
+        // console.log(student);
+        if(student.nocFileUrl.toString().length > 1){
+            return res.status(400).json({"message": "NOC already uploaded"});
+        }
+        await Student.findByIdAndUpdate(studentId, { nocFileUrl });
+
+        res.status(200).json({ message: "File uploaded successfully!" });
+    } catch (error) {
+        console.error("Error uploading file: ", error);
+        res.status(500).json({ error: "Error uploading file" });
+    }
+}
+
+module.exports.downloadNocPhysical = async (req, res) => {
+    try {
+        const student = await Student.findById(req.params.studentId);
+
+        if (!student || !student.nocFileUrl) {
+            return res.status(404).json({ message: "NOC file not found" });
+        }
+
+        const filePath = path.resolve(student.nocFileUrl);
+        res.download(filePath, 'noc.pdf', (err) => {
+            if (err) {
+                console.error("Error downloading file: ", err);
+                res.status(500).json({ message: "Error downloading file" });
+            }
+        });
+    } catch (error) {
+        console.error("Error downloading file: ", error);
+        res.status(500).json({ message: "Error downloading file" });
+    }
+};
 
 module.exports.downloadNoc = async (req, res) => {
     try {

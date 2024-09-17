@@ -22,6 +22,12 @@ const studentSchema = new mongoose.Schema({
   role:{
     type: String,
     required: true
+  },
+  nocFileUrl: {
+    type: String
+  },
+  leetcodeurl: {
+    type: String
   }
 });
 
